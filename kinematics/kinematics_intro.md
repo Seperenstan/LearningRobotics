@@ -89,6 +89,71 @@ Multiple transformations can be composed by matrix multiplication, but note that
 
 ## 3. Forward Kinematics (FK)
 
---- 
+Forward kinematics is the process of calculating the frames of a robot's links, given a configuration and the robot's kinematic structure. We can then use these link frames to determine the end-effector pose in the world frame under arbitrary configurations & changes in joint parameters.
+
+
+### 3.1 2D Forward Kinematics for Serial Robots
+
+Consider an $n$-link serial robot with revolute joints. Let the reference transforms of the links be:
+
+$$
+T_{1,\text{ref}}, T_{2,\text{ref}}, \dots, T_{n,\text{ref}}
+$$
+
+and let the joint angles be $q_1, \dots, q_n$. The world coordinates of a point $x_i$ on link $i$ are obtained recursively as:
+
+$$
+T_1(q_1) = T_{1,\text{ref}} R(q_1)
+$$
+
+$$
+T_i(q_1,\dots,q_i) = T_{i-1}(q_1,\dots,q_{i-1}) (T_{i-1,\text{ref}}^{-1} T_{i,\text{ref}}) R(q_i), \quad i>1
+$$
+
+Here $R(q_i)$ is the rotation due to joint $i$, and the parent-relative transform simplifies the recursion.  
+
+For a planar $nR$ manipulator with link lengths $L_1,\dots,L_n$, the end-effector coordinates are:
+
+$$
+T_n(q) \begin{bmatrix} L_n \\ 0 \\ 1 \end{bmatrix} = 
+\begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix} + \sum_{i=1}^{n} \begin{bmatrix} L_i c_{1,\dots,i} \\ L_i s_{1,\dots,i} \\ 0 \end{bmatrix}
+$$
+
+where $c_{1,\dots,i} = \cos\sum_{k=1}^i q_k$ and $s_{1,\dots,i} = \sin\sum_{k=1}^i q_k$.
+
+
+### Branched and Prismatic Joints
+
+For branched robots, the recursion uses the parent index $p[i]$:
+
+$$
+T_i(q) = 
+\begin{cases} 
+T_{p[i]}(q) T_{p[i],\text{ref}}^{i,\text{ref}} R(q_i), & p[i]\neq W \\
+T_{i,\text{ref}} R(q_i), & p[i]=W
+\end{cases}
+$$
+
+For prismatic joints along axis $a_i$, replace $R(q_i)$ with the translation matrix:
+
+$$
+P(q_i) = \begin{bmatrix} 1 & 0 & a_{i,x} q_i \\ 0 & 1 & a_{i,y} q_i \\ 0 & 0 & 1 \end{bmatrix}
+$$
+
+### 3D Forward Kinematics
+
+In 3D, homogeneous matrices are $4\times4$, and each joint is defined by an axis $a_i = (a_{i,x},a_{i,y},a_{i,z})$.  
+
+- Revolute joints: use axis-angle rotation $L_{1,a}(q_i)$.  
+- Prismatic joints: use translation along the axis $L_{0,a}(q_i)$.
+
+The general 3D forward kinematics recursion remains:
+
+$$
+T_i(q) = T_{p[i]}(q) T_{p[i],\text{ref}}^{i,\text{ref}} L_{z_i,a_i}(q_i)
+$$
+
+where $z_i$ indicates revolute $(1)$ or prismatic $(0)$.
+
 
 ## 4. Inverse Kinematics (IK)
