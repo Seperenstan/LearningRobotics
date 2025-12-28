@@ -32,5 +32,11 @@ The DOF of a robot describes the number of independent parameters that define it
 Since joint mobility is usually limited (e.g. a revolute joint can only rotate between -180° and +180°), the set of all possible configurations of a robot is called its configuration space. Each point in this space corresponds to a unique arrangement of the robot's joints and links, and is defined be the cartesian product of all individual joint parameter spaces (for serial & branched robots). 
 
 For parallel mechanisms, the configuration space is more complex due to the closed-loop constraints imposed by the parallel structure.
+To determine the mobility $M$ (dimension of the configuration space) of a parallel mechanism, we can use the formula:
+$$ M = 6n - \sum_{i=1}^{m} (6- f_i) $$
 
-To be continued...
+where:
+- $n$ is the number of joints,
+- $f_i$ is the mobility of the $i^{th}$ joint,
+
+Intuitively, this formula just corrects the maximum number of DOFs in 3d (6n) by subtracting the constraints imposed onto each joint.
